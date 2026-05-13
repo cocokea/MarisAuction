@@ -1,0 +1,25 @@
+language: en
+listing-duration-ms: 172800000
+blacklist-items:
+  - BEDROCK
+  - BARRIER
+  - COMMAND_BLOCK
+  - CHAIN_COMMAND_BLOCK
+  - REPEATING_COMMAND_BLOCK
+  - COMMAND_BLOCK_MINECART
+  - STRUCTURE_BLOCK
+  - JIGSAW
+  - LIGHT
+  - DEBUG_STICK
+
+database:
+  type: sqlite
+  mysql:
+    host: 127.0.0.1
+    port: 3306
+    database: marisauction
+    username: root
+    password: ''
+  pool:
+    maximum-pool-size: 10
+    minimum-idle: 2

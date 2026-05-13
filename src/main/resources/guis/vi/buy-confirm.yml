@@ -1,0 +1,26 @@
+title: '&8ᴄᴏɴғɪʀᴍ ᴘᴜʀᴄʜᴀsᴇ'
+title-shulker: '&8ᴄᴏɴғɪʀᴍ ᴘᴜʀᴄʜᴀsᴇ ᴀɴᴅ ᴘʀᴇᴠɪᴇᴡ'
+inventory:
+  size: 27
+shulker-inventory:
+  size: 54
+  preview-start-slot: 27
+buttons:
+  cancel:
+    slot: 11
+    material: RED_STAINED_GLASS_PANE
+    name: '&#FF0000ᴄᴀɴᴄᴇʟ'
+    lore:
+      - '&fClick to cancel'
+  item:
+    slot: 13
+    lore:
+      - '&fPrice: &a%price%'
+      - '&fSeller: &#00FF8C%seller%'
+      - '&fTime Left: &#00FF8C%time_left%'
+  confirm:
+    slot: 15
+    material: LIME_STAINED_GLASS_PANE
+    name: '&aᴄᴏɴғɪʀᴍ'
+    lore:
+      - '&fClick to buy'

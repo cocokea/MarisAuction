@@ -1,0 +1,22 @@
+title: '&8ᴀᴜᴄᴛɪᴏɴ - ʏᴏᴜʀ ɪᴛᴇᴍs'
+inventory:
+  size: 27
+buttons:
+  sell:
+    slot: 0
+    material: MAP
+    name: '&#00FF42Sell Item'
+    lore:
+      - '&fNhấn để đăng bán vật phẩm'
+      - ' '
+      - '&8Or'
+      - '&8Cầm vật phẩm và gõ'
+      - '&8/ah sell (price)'
+      - ' '
+      - '&8Nhấn vào vật phẩm đang bán để lấy lại'
+  transactions:
+    slot: 26
+    material: WRITTEN_BOOK
+    name: '&#00FF42ᴛʀᴀɴsᴀᴄᴛɪᴏɴs'
+    lore:
+      - '&fNhấn để xem lịch sử mua bán.'

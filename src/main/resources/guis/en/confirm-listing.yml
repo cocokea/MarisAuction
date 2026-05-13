@@ -1,0 +1,24 @@
+title: '&8ᴄᴏɴғɪʀᴍ ʟɪsᴛɪɴɢ'
+inventory:
+  size: 27
+shulker-inventory:
+  size: 54
+  preview-start-slot: 27
+buttons:
+  cancel:
+    slot: 11
+    material: RED_STAINED_GLASS_PANE
+    name: '&#FF0000ᴄᴀɴᴄᴇʟ'
+    lore:
+      - '&fDo not list this item'
+  item:
+    slot: 13
+    lore:
+      - '&fYou''re going to sell'
+      - '&fthis item for &a$%price%'
+  confirm:
+    slot: 15
+    material: LIME_STAINED_GLASS_PANE
+    name: '&aᴄᴏɴғɪʀᴍ'
+    lore:
+      - '&fClick to sell'

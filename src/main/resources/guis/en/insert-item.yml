@@ -1,0 +1,24 @@
+title: '&8ɪɴsᴇʀᴛ ɪᴛᴇᴍ'
+buttons:
+  cancel:
+    slot: 0
+    material: RED_STAINED_GLASS_PANE
+    name: '&#FF0000ᴄᴀɴᴄᴇʟ'
+    lore:
+      - '&fReturn to your items'
+  left-fill:
+    slot: 1
+    material: GRAY_STAINED_GLASS_PANE
+    name: ' '
+  item:
+    slot: 2
+  right-fill:
+    slot: 3
+    material: GRAY_STAINED_GLASS_PANE
+    name: ' '
+  confirm:
+    slot: 4
+    material: LIME_STAINED_GLASS_PANE
+    name: '&aᴄᴏɴғɪʀᴍ'
+    lore:
+      - '&fClick to continue'

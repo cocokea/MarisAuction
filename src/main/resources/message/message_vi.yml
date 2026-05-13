@@ -1,0 +1,44 @@
+plugin:
+  reloaded: '&aTai lai plugin thanh cong.'
+listing:
+  created: '&7Vat pham cua ban da duoc dang ban voi gia &#00FF42$%price%&7.'
+  cancelled: '&7Ban da huy vat pham dang ban. Item da duoc tra ve tui do hoac hang cho.'
+purchase:
+  success: '&7Ban da mua vat pham cua &#00FF42%seller% &7voi gia &#00FF42$%price%&7.'
+returns:
+  empty: '&cBan khong co vat pham nao dang cho tra lai.'
+  delivered: '&7Da tra &#00FF42%amount% &7vat pham ve tui do cua ban.'
+  pending: '&cTui do day. Mo lai &#00FF42Your Items &7de nhan phan con lai.'
+  queued: '&cVat pham tra lai dang cho va se duoc dua khi ban mo &#00FF42Your Items&7.'
+  dropped: '&cTui do day nen vat pham da roi duoi chan ban.'
+errors:
+  sell-limit: '&cBan da dat gioi han so vat pham dang ban.'
+  already-sold: '&cVat pham nay da duoc ban.'
+  inventory-full: '&cTui do cua ban da day.'
+  invalid-price: '&cGia tien khong hop le.'
+  insufficient-funds: '&cBan khong du tien.'
+  self-buy: '&cBan khong the mua vat pham cua chinh minh.'
+  buy-failed: '&cKhong the mua vat pham nay luc nay.'
+  cancel-failed: '&cKhong the huy vat pham dang ban luc nay.'
+  listing-failed: '&cKhong the dang ban vat pham luc nay.'
+  hold-item-first: '&cHay cam vat pham tren tay truoc.'
+  insert-empty: '&cHay dat vat pham vao truoc.'
+  invalid-hand-item: '&cHay cam dung vat pham do tren tay chinh de hoan tat dang ban.'
+  blacklisted-item: '&cVat pham nay bi chan va khong the dang ban.'
+sign:
+  search:
+    - ""
+    - '§0↑↑↑↑↑↑↑↑↑↑↑↑'
+    - "§0Search"
+    - ""
+  price:
+    - ""
+    - "Type Price"
+    - '§0↑↑↑↑↑↑↑↑↑↑↑↑'
+    - ""
+  ignored-lines:
+    - ""
+    - '§0↑↑↑↑↑↑↑↑↑↑↑↑'
+    - "§0Search"
+    - ""
+modes: {}

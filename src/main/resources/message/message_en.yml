@@ -1,0 +1,44 @@
+plugin:
+  reloaded: '&aReload complete.'
+listing:
+  created: '&7Your item has been listed for &#00FF42$%price%&7.'
+  cancelled: '&7Your listing was cancelled. The item was returned to your inventory or queued for return.'
+purchase:
+  success: '&7You bought an item from &#00FF42%seller% &7for &#00FF42$%price%&7.'
+returns:
+  empty: '&cYou do not have any returned items waiting.'
+  delivered: '&7Returned &#00FF42%amount% &7stored item(s) to your inventory.'
+  pending: '&cYour inventory filled up. Open &#00FF42Your Items &7again for the rest.'
+  queued: '&cYour returned item is waiting and will be given back when you open &#00FF42Your Items&7.'
+  dropped: '&cYour inventory was full, so the item was dropped at your feet.'
+errors:
+  sell-limit: '&cYou have reached your listing limit.'
+  already-sold: '&cThe item has already been sold.'
+  inventory-full: '&cYour inventory is full.'
+  invalid-price: '&cInvalid price.'
+  insufficient-funds: '&cYou do not have enough money.'
+  self-buy: '&cYou cannot buy your own listing.'
+  buy-failed: '&cUnable to buy this item right now.'
+  cancel-failed: '&cUnable to cancel this listing.'
+  listing-failed: '&cUnable to create the listing right now.'
+  hold-item-first: '&cHold an item first.'
+  insert-empty: '&cInsert an item first.'
+  invalid-hand-item: '&cHold the same item in your main hand to finish the listing.'
+  blacklisted-item: '&cYou cannot sell this item.'
+sign:
+  search:
+    - ""
+    - '§0↑↑↑↑↑↑↑↑↑↑↑↑'
+    - "§0Search"
+    - ""
+  price:
+    - ""
+    - "Type Price"
+    - '§0↑↑↑↑↑↑↑↑↑↑↑↑'
+    - ""
+  ignored-lines:
+    - ""
+    - '§0↑↑↑↑↑↑↑↑↑↑↑↑'
+    - "§0Search"
+    - ""
+modes: {}

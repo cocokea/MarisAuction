@@ -1,0 +1,95 @@
+title: '&8ᴀᴜᴄᴛɪᴏɴ (Page %pages%)'
+inventory:
+  size: 54
+  content-slots:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    - 8
+    - 9
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 16
+    - 17
+    - 18
+    - 19
+    - 20
+    - 21
+    - 22
+    - 23
+    - 24
+    - 25
+    - 26
+    - 27
+    - 28
+    - 29
+    - 30
+    - 31
+    - 32
+    - 33
+    - 34
+    - 35
+    - 36
+    - 37
+    - 38
+    - 39
+    - 40
+    - 41
+    - 42
+    - 43
+    - 44
+buttons:
+  previous-page:
+    slot: 45
+    material: ARROW
+    name: '&#00FF8Cʙᴀᴄᴋ'
+    lore:
+      - '&fClick to go to the previous page'
+  sort:
+    slot: 47
+    material: CAULDRON
+    name: '&#00FF8Csᴏʀᴛ'
+    selected-format: '&#00FF8C• %name%'
+    normal-format: '&f• %name%'
+    lore-current: '&7Current: &#00FF8C%value%'
+  filter:
+    slot: 48
+    material: HOPPER
+    name: '&#00FF8Cғɪʟᴛᴇʀ'
+    selected-format: '&#00FF8C• %name%'
+    normal-format: '&f• %name%'
+    lore-current: '&7Current: &#00FF8C%value%'
+  refresh:
+    slot: 49
+    material: ANVIL
+    name: '&#00FF8Cᴀᴜᴄᴛɪᴏɴ'
+    lore:
+      - '&fClick to refresh'
+  search:
+    slot: 50
+    material: OAK_SIGN
+    name: '&#00FF8Csᴇᴀʀᴄʜ'
+    lore:
+      - '&fClick to search'
+    lore-current: '&7Current: &#00FF8C%value%'
+  your-items:
+    slot: 51
+    material: CHEST
+    name: '&#00FF8Cʏᴏᴜʀ ɪᴛᴇᴍs'
+    lore:
+      - '&fClick to view the items you have listed.'
+  next-page:
+    slot: 53
+    material: ARROW
+    name: '&#00FF8Cɴᴇxᴛ'
+    lore:
+      - '&fClick to go to the next page'

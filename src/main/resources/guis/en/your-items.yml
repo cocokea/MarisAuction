@@ -1,0 +1,20 @@
+title: '&8ᴀᴜᴄᴛɪᴏɴ - ʏᴏᴜʀ ɪᴛᴇᴍs'
+inventory:
+  size: 27
+buttons:
+  sell:
+    slot: 0
+    material: MAP
+    name: '&#00FF8CSell Item'
+    lore:
+      - '&fClick to list an item'
+      - ' '
+      - '&8Or'
+      - '&8Hold an item and type'
+      - '&8/ah sell (price)'
+  transactions:
+    slot: 26
+    material: WRITABLE_BOOK
+    name: '&#00FF8Cᴛʀᴀɴsᴀᴄᴛɪᴏɴs'
+    lore:
+      - '&fClick to see your purchases and sales.'
