@@ -9,6 +9,7 @@ import com.maris7.auctionhouse.gui.AuctionHolder;
 import com.maris7.auctionhouse.gui.GuiManager;
 import com.maris7.auctionhouse.listener.GuiListener;
 import com.maris7.auctionhouse.listener.PlayerListener;
+import com.maris7.auctionhouse.listener.SignInputPacketListener;
 import com.maris7.auctionhouse.service.AuctionService;
 import com.maris7.auctionhouse.service.SignInputService;
 import com.maris7.auctionhouse.service.SoundService;
@@ -37,6 +38,7 @@ public final class MarisAuctionPlugin extends JavaPlugin {
     private FoliaScheduler.TaskHandle mysqlTimeoutLogTask;
     private FoliaScheduler.TaskHandle expiredSweepTask;
     private SettingsHook settingsHook;
+    private SignInputPacketListener signInputPacketListener;
 
     public static MarisAuctionPlugin getInstance() {
         return instance;
@@ -49,7 +51,10 @@ public final class MarisAuctionPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        this.configRegistry = new ConfigRegistry(this);
+        
+        saveDefaultConfig();
+        MarisPluginStartup.bootstrap(this, "cocokea/MarisAuction");
+this.configRegistry = new ConfigRegistry(this);
         this.configRegistry.loadAll();
 
         if (!validateDependencies()) {
@@ -63,9 +68,13 @@ public final class MarisAuctionPlugin extends JavaPlugin {
         this.databaseManager = new DatabaseManager(this);
         this.databaseManager.start();
         this.auctionService = new AuctionService(this, databaseManager);
-        this.signInputService = new SignInputService(this, PacketEvents.getAPI() != null);
+        this.signInputService = new SignInputService(this);
         this.soundService = new SoundService(this);
         this.guiManager = new GuiManager(this, auctionService, signInputService);
+        if (signInputService.isPacketEventsAvailable()) {
+            this.signInputPacketListener = new SignInputPacketListener(signInputService);
+            PacketEvents.getAPI().getEventManager().registerListener(signInputPacketListener);
+        }
         expiredSweepTask = FoliaScheduler.runAsyncTimer(this, () -> {
             if (auctionService != null && databaseManager.isAuctionAvailable()) {
                 auctionService.sweepExpiredAsync();
@@ -97,6 +106,13 @@ public final class MarisAuctionPlugin extends JavaPlugin {
         if (guiManager != null) {
             guiManager.shutdown();
         }
+        if (signInputPacketListener != null && PacketEvents.getAPI() != null) {
+            PacketEvents.getAPI().getEventManager().unregisterListener(signInputPacketListener);
+            signInputPacketListener = null;
+        }
+        if (signInputService != null) {
+            signInputService.clearAll();
+        }
         if (databaseManager != null) {
             databaseManager.shutdown();
         }
@@ -105,8 +121,6 @@ public final class MarisAuctionPlugin extends JavaPlugin {
     private boolean validateDependencies() {
         Plugin vault = Bukkit.getPluginManager().getPlugin("Vault");
         Plugin nbtApi = Bukkit.getPluginManager().getPlugin("NBTAPI");
-        Plugin packetEvents = Bukkit.getPluginManager().getPlugin("PacketEvents");
-
         if (vault == null) {
             getLogger().severe("Vault is required.");
             return false;
@@ -115,9 +129,8 @@ public final class MarisAuctionPlugin extends JavaPlugin {
             getLogger().severe("NBTAPI is required.");
             return false;
         }
-        if (packetEvents == null || PacketEvents.getAPI() == null) {
-            getLogger().severe("PacketEvents is required.");
-            return false;
+        if (PacketEvents.getAPI() == null) {
+            getLogger().warning("PacketEvents was not found. Sign input features will stay disabled until PacketEvents is installed.");
         }
         return true;
     }
@@ -198,13 +211,8 @@ public final class MarisAuctionPlugin extends JavaPlugin {
         return settingsHook != null && settingsHook.isEnabled(uuid, "AUCTION_FAST_BUY", false);
     }
 
-    public boolean isFastSellEnabled(java.util.UUID uuid) {
-        return settingsHook != null && settingsHook.isEnabled(uuid, "AUCTION_FAST_SELL", false);
-    }
-
     public Economy getEconomy() {
         return economy;
     }
 
 }
-

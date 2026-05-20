@@ -110,7 +110,6 @@ public final class GuiListener implements Listener {
             return;
         }
         if (event.getRawSlot() == searchSlot) {
-            MarisAuctionPlugin.getInstance().getSoundService().play(player, "search");
             player.closeInventory();
             FoliaScheduler.runEntity(MarisAuctionPlugin.getInstance(), player, () -> guiManager.promptSearch(player, state));
             return;
@@ -297,7 +296,6 @@ public final class GuiListener implements Listener {
             guiManager.openTransactions(player, state, "refresh");
         } else if (event.getRawSlot() == guiManager.transactionsSlot("search", 50)) {
             guiManager.suppressNextClose(player);
-            MarisAuctionPlugin.getInstance().getSoundService().play(player, "search");
             player.closeInventory();
             FoliaScheduler.runEntity(MarisAuctionPlugin.getInstance(), player, () -> MarisAuctionPlugin.getInstance().getSignInputService().openSearch(player, input -> {
                 String normalized = input == null || input.isBlank() ? null : input;

@@ -45,14 +45,14 @@ public final class AuctionCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         if (args[0].equalsIgnoreCase("sell") && args.length >= 2) {
-            handleSell(player, args[1], plugin.isFastSellEnabled(player.getUniqueId()));
+            handleSell(player, args[1]);
             return true;
         }
         guiManager.openMain(player, guiManager.defaultView().withQuery(String.join(" ", args)));
         return true;
     }
 
-    private void handleSell(Player player, String rawPrice, boolean skipConfirm) {
+    private void handleSell(Player player, String rawPrice) {
         ItemStack hand = player.getInventory().getItemInMainHand();
         if (hand == null || hand.getType().isAir()) {
             Text.send(player, plugin.getConfigRegistry().messages().get("errors.hold-item-first"));
@@ -67,10 +67,6 @@ public final class AuctionCommand implements CommandExecutor, TabCompleter {
             price = MoneyUtil.parseShort(rawPrice);
         } catch (Exception ex) {
             Text.send(player, plugin.getConfigRegistry().messages().get("errors.invalid-price"));
-            return;
-        }
-        if (skipConfirm) {
-            guiManager.completeListing(player, new GuiManager.PendingListing(hand.clone(), price, false), false);
             return;
         }
         guiManager.openConfirmListing(player, hand.clone(), price, false);

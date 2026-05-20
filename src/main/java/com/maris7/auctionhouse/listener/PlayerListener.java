@@ -4,7 +4,7 @@ import com.maris7.auctionhouse.gui.GuiManager;
 import com.maris7.auctionhouse.service.SignInputService;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class PlayerListener implements Listener {
@@ -17,7 +17,6 @@ public final class PlayerListener implements Listener {
         this.signInputService = signInputService;
     }
 
-
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         guiManager.clearPending(event.getPlayer().getUniqueId());
@@ -25,10 +24,8 @@ public final class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onSignChange(SignChangeEvent event) {
-        if (!signInputService.matches(event.getPlayer().getUniqueId(), event.getBlock().getLocation())) {
-            return;
-        }
-        signInputService.complete(event.getPlayer(), event.getLines());
+    public void onKick(PlayerKickEvent event) {
+        guiManager.clearPending(event.getPlayer().getUniqueId());
+        signInputService.clear(event.getPlayer().getUniqueId());
     }
 }

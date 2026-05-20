@@ -5,7 +5,7 @@ menu-open:
   pitch: 0.8
 button-click:
   enabled: true
-  sound: UI_BUTTON_CLICK
+  sound: BLOCK_BAMBOO_WOOD_BUTTON_CLICK_OFF
   volume: 0.8
   pitch: 1.0
 page-turn:

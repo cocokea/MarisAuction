@@ -1,20 +1,19 @@
 package com.maris7.auctionhouse.service;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
+import com.github.retrooper.packetevents.util.Vector3i;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerBlockChange;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOpenSignEditor;
 import com.maris7.auctionhouse.MarisAuctionPlugin;
 import com.maris7.auctionhouse.util.FoliaScheduler;
 import com.maris7.auctionhouse.util.Text;
-import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
-import org.bukkit.block.sign.Side;
-import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,17 +24,18 @@ import java.util.function.Consumer;
 
 public final class SignInputService {
 
+    private static final int SIGN_LINE_COUNT = 4;
+    private static final WrappedBlockState FAKE_SIGN_STATE = WrappedBlockState.getByString("minecraft:oak_sign[rotation=0,waterlogged=false]");
+
     private final MarisAuctionPlugin plugin;
-    private final boolean packetEventsAvailable;
     private final Map<UUID, Session> sessions = new ConcurrentHashMap<>();
 
-    public SignInputService(MarisAuctionPlugin plugin, boolean packetEventsAvailable) {
+    public SignInputService(MarisAuctionPlugin plugin) {
         this.plugin = plugin;
-        this.packetEventsAvailable = packetEventsAvailable;
     }
 
     public boolean isPacketEventsAvailable() {
-        return packetEventsAvailable;
+        return PacketEvents.getAPI() != null;
     }
 
     public void openSearch(Player player, Consumer<String> callback) {
@@ -46,47 +46,37 @@ public final class SignInputService {
         open(player, getConfiguredLines("sign.price", new String[]{"", "Type Price", "^^^^^^^^^^^^", ""}), callback);
     }
 
-    public boolean matches(UUID uniqueId, Location location) {
-        Session session = sessions.get(uniqueId);
-        if (session == null || location == null) {
-            return false;
-        }
-        return session.location().getWorld() != null
-                && session.location().getWorld().equals(location.getWorld())
-                && session.location().getBlockX() == location.getBlockX()
-                && session.location().getBlockY() == location.getBlockY()
-                && session.location().getBlockZ() == location.getBlockZ();
+    public boolean hasSession(UUID uniqueId) {
+        return sessions.containsKey(uniqueId);
     }
 
-    public void complete(Player player, String[] lines) {
-        Session session = sessions.remove(player.getUniqueId());
-        if (session == null) {
+    public void handleSignResponse(Player player, Vector3i position, String[] lines) {
+        if (player == null || position == null) {
             return;
         }
-        restore(session);
-
-        Set<String> ignored = getIgnoredLines();
-        String value = "";
-        if (lines != null) {
-            for (String line : lines) {
-                if (line == null) {
-                    continue;
-                }
-                String trimmed = line.trim();
-                if (!trimmed.isEmpty() && !ignored.contains(trimmed)) {
-                    value = trimmed;
-                    break;
-                }
+        FoliaScheduler.runEntity(plugin, player, () -> {
+            Session session = sessions.get(player.getUniqueId());
+            if (session == null || !session.matches(position)) {
+                return;
             }
-        }
-        session.callback().accept(value);
+            sessions.remove(player.getUniqueId());
+            restore(player, session);
+            session.callback().accept(extractValue(lines, session.promptLines()));
+        });
     }
 
     public void clear(UUID uniqueId) {
         Session removed = sessions.remove(uniqueId);
-        if (removed != null) {
-            restore(removed);
+        if (removed == null) {
+            return;
         }
+        FoliaScheduler.runGlobal(plugin, () -> {
+            Player player = Bukkit.getPlayer(uniqueId);
+            if (player == null || !player.isOnline()) {
+                return;
+            }
+            FoliaScheduler.runEntity(plugin, player, () -> restore(player, removed));
+        });
     }
 
     public void clearAll() {
@@ -95,114 +85,107 @@ public final class SignInputService {
         }
     }
 
+    private void open(Player player, String[] lines, Consumer<String> callback) {
+        clear(player.getUniqueId());
+        if (!isPacketEventsAvailable()) {
+            plugin.getLogger().warning("PacketEvents is not available; cannot open sign input for " + player.getName());
+            return;
+        }
+        FoliaScheduler.runEntity(plugin, player, () -> {
+            if (!player.isOnline()) {
+                return;
+            }
+            Location location = findTemporaryLocation(player);
+            Block block = location.getBlock();
+            Session session = new Session(location.clone(), block.getBlockData().clone(), normalizedPromptLines(lines), callback);
+            sessions.put(player.getUniqueId(), session);
+            sendFakeSign(player, session, lines);
+        });
+    }
+
     private String[] getConfiguredLines(String path, String[] fallback) {
         List<String> configured = plugin.getConfigRegistry().messages().getStringList(path);
         String[] lines = fallback.clone();
-        for (int index = 0; index < Math.min(4, configured.size()); index++) {
+        for (int index = 0; index < Math.min(SIGN_LINE_COUNT, configured.size()); index++) {
             lines[index] = configured.get(index);
         }
         return lines;
     }
 
-    private void open(Player player, String[] lines, Consumer<String> callback) {
-        Block block = findTemporaryBlock(player);
-        Location location = block.getLocation();
-        Material originalType = block.getType();
-        org.bukkit.block.data.BlockData originalData = block.getBlockData().clone();
+    private void sendFakeSign(Player player, Session session, String[] lines) {
+        Vector3i position = session.position();
+        PacketEvents.getAPI().getPlayerManager().sendPacket(player, new WrapperPlayServerBlockChange(position, FAKE_SIGN_STATE));
+        player.sendSignChange(session.location(), colorLines(lines));
+        PacketEvents.getAPI().getPlayerManager().sendPacket(player, new WrapperPlayServerOpenSignEditor(position, true));
+    }
 
-        FoliaScheduler.runRegion(plugin, location, () -> {
-            World world = location.getWorld();
-            if (world == null) {
-                return;
-            }
-            Block target = world.getBlockAt(location);
-            target.setType(Material.OAK_SIGN, false);
-            if (!(target.getState() instanceof Sign sign)) {
-                return;
-            }
+    private void restore(Player player, Session session) {
+        if (!player.isOnline()) {
+            return;
+        }
+        player.sendBlockChange(session.location(), session.originalData());
+    }
 
-            SignSide side = sign.getSide(Side.FRONT);
-            for (int index = 0; index < 4; index++) {
-                side.line(index, Text.component(index < lines.length && lines[index] != null ? lines[index] : ""));
-                sign.getSide(Side.BACK).line(index, Component.empty());
+    private String extractValue(String[] lines, Set<String> ignoredLines) {
+        if (lines == null) {
+            return "";
+        }
+        for (String line : lines) {
+            String normalized = normalize(line);
+            if (!normalized.isEmpty() && !ignoredLines.contains(normalized)) {
+                return line == null ? "" : line.trim();
             }
-            sign.setWaxed(false);
-            trySetAllowedEditor(sign, player.getUniqueId());
-            sign.update(true, false);
-            sessions.put(player.getUniqueId(), new Session(location, originalType, originalData, callback));
-            final String[] clientLines = colorLines(lines);
-            FoliaScheduler.runEntity(plugin, player, () -> {
-                if (!player.isOnline()) {
-                    clear(player.getUniqueId());
-                    return;
-                }
-                player.sendSignChange(location, clientLines);
-                FoliaScheduler.runEntityLater(plugin, player, () -> {
-                    if (!player.isOnline()) {
-                        clear(player.getUniqueId());
-                        return;
-                    }
-                    World w = location.getWorld();
-                    if (w == null) {
-                        return;
-                    }
-                    Block at = w.getBlockAt(location);
-                    if (!(at.getState() instanceof Sign openSign)) {
-                        return;
-                    }
-                    player.openSign(openSign, Side.FRONT);
-                }, 2L);
-            });
-        });
+        }
+        return "";
+    }
+
+    private Set<String> normalizedPromptLines(String[] lines) {
+        Set<String> ignored = new LinkedHashSet<>();
+        for (String line : lines) {
+            String normalized = normalize(line);
+            if (!normalized.isEmpty()) {
+                ignored.add(normalized);
+            }
+        }
+        ignored.addAll(plugin.getConfigRegistry().messages().getStringList("sign.ignored-lines").stream()
+                .map(this::normalize)
+                .filter(value -> !value.isEmpty())
+                .toList());
+        return ignored;
+    }
+
+    private String normalize(String line) {
+        return ChatColor.stripColor(Text.color(line == null ? "" : line)).trim();
+    }
+
+    private Location findTemporaryLocation(Player player) {
+        Location base = player.getLocation();
+        int y = Math.max(player.getWorld().getMinHeight() + 1, base.getBlockY() + 5);
+        return new Location(player.getWorld(), base.getBlockX(), y, base.getBlockZ());
     }
 
     private String[] colorLines(String[] lines) {
-        String[] colored = new String[4];
-        for (int index = 0; index < colored.length; index++) {
+        String[] colored = new String[SIGN_LINE_COUNT];
+        for (int index = 0; index < SIGN_LINE_COUNT; index++) {
             colored[index] = Text.color(index < lines.length && lines[index] != null ? lines[index] : "");
         }
         return colored;
     }
 
-    private Set<String> getIgnoredLines() {
-        Set<String> ignored = new LinkedHashSet<>();
-        ignored.addAll(Arrays.asList(getConfiguredLines("sign.search", new String[]{"^^^^^^^^^^^^", "Search", "", ""})));
-        ignored.addAll(Arrays.asList(getConfiguredLines("sign.price", new String[]{"", "Type Price", "^^^^^^^^^^^^", ""})));
-        ignored.addAll(plugin.getConfigRegistry().messages().getStringList("sign.ignored-lines"));
-        ignored.removeIf(line -> line == null || line.isBlank());
-        return ignored;
-    }
+    private record Session(
+            Location location,
+            org.bukkit.block.data.BlockData originalData,
+            Set<String> promptLines,
+            Consumer<String> callback
+    ) {
+        private Vector3i position() {
+            return new Vector3i(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        }
 
-    private void restore(Session session) {
-        FoliaScheduler.runRegion(plugin, session.location(), () -> {
-            World world = session.location().getWorld();
-            if (world == null) {
-                return;
-            }
-            Block block = world.getBlockAt(session.location());
-            block.setType(session.originalType(), false);
-            try {
-                block.setBlockData(session.originalData().clone(), false);
-            } catch (Throwable ignored) {
-            }
-        });
-    }
-
-    private Block findTemporaryBlock(Player player) {
-        Location head = player.getEyeLocation().clone().add(0.0D, 1.0D, 0.0D);
-        return head.getBlock();
-    }
-
-    private void trySetAllowedEditor(Sign sign, UUID uuid) {
-        try {
-            Method method = sign.getClass().getMethod("setAllowedEditorUniqueId", UUID.class);
-            method.invoke(sign, uuid);
-        } catch (Throwable ignored) {
+        private boolean matches(Vector3i other) {
+            return other.getX() == location.getBlockX()
+                    && other.getY() == location.getBlockY()
+                    && other.getZ() == location.getBlockZ();
         }
     }
-
-    public record Session(Location location,
-                          Material originalType,
-                          org.bukkit.block.data.BlockData originalData,
-                          Consumer<String> callback) {}
 }

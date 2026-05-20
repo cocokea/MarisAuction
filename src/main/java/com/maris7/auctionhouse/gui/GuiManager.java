@@ -51,12 +51,6 @@ public final class GuiManager {
         this.signInputService = signInputService;
     }
 
-
-
-    public boolean hasFastSell(UUID uniqueId) {
-        return plugin.isFastSellEnabled(uniqueId);
-    }
-
     public boolean hasFastBuy(UUID uniqueId) {
         return plugin.isFastBuyEnabled(uniqueId);
     }
@@ -73,7 +67,7 @@ public final class GuiManager {
     }
 
     public void openMain(Player player, ViewState state) {
-        openMain(player, state, "menu-open");
+        openMain(player, state, null);
     }
 
     public void openMain(Player player, ViewState state, String soundKey) {
@@ -405,11 +399,7 @@ public final class GuiManager {
                 }
                 double price = MoneyUtil.parseShort(text);
                 FoliaScheduler.runEntity(plugin, player, () -> {
-                    if (hasFastSell(player.getUniqueId())) {
-                        completeListing(player, new PendingListing(item.clone(), price, alreadyRemoved), true);
-                    } else {
-                        openConfirmListing(player, item, price, alreadyRemoved);
-                    }
+                    openConfirmListing(player, item, price, alreadyRemoved);
                 });
             } catch (Exception ex) {
                 if (alreadyRemoved) {
